@@ -1,0 +1,215 @@
+1. To Install Virtualbox / VMware Workstation with different flavours of linux or windows OS.
+- Download the VirtualBox executable file and click it.
+- Click the "Next" button through the setup wizard screens.
+- Click the "Yes" button when warned about Network Interfaces.
+- Click the "Install" button to begin installation.
+- Once the installation is completed, the VirtualBox icon will be shown on the desktop screen.
+
+2. To Install a C compiler in the virtual machine created using virtual box and executes Simple Program.
+- Open VirtualBox and navigate to File -> Import Appliance.
+- Browse and select the ubuntu_gt6.ova file.
+- Go to settings, select USB, and choose USB 1.1.
+- Start the ubuntu_gt6 virtual machine.
+- Open the terminal in Ubuntu.
+- Type `cd /opt/axis2/axis2-1.7.3/bin` and press enter.
+- Type `gedit first.c` to open the text editor and enter your C program.
+- Type `gcc first.c` to compile the program.
+- Type `./a.out` to execute the program and display the output.
+
+3. Create EC2 Instance in AWS (Amazon)
+- Log into your AWS account and click on “services” on the primary screen, then select “EC2” under Compute.
+- Click on “Launch instance” and provide a name for the instance (e.g., My Web Server).
+- Select the required operating system from the Application and OS Images (AMI) catalog.
+- Keep the default instance type as “t2.micro” (Free tier eligible).
+- Create or select a key pair (e.g., .pem file) to securely connect to the instance.
+- Keep network settings as default and ensure storage is within the free tier limit (up to 30 GB EBS).
+- Click on “Launch instance”.
+- To connect, select your running server, click the connect button, and copy the provided SSH key command.
+- Open your local terminal, navigate to the folder with your .pem key, and paste the SSH command to connect.
+
+4. To develop a simple custom application using the Apex programming language on the Salesforce cloud platform.
+- Sign up for a free Salesforce Developer Org and log in with your credentials.
+- Open the Developer Console by clicking the gear icon (Setup) and selecting Developer Console.
+- Navigate to File > New > Apex Class, enter a name (e.g., HelloWorldApp), and click OK.
+- Write the following Apex code and save the class (File > Save):
+    public class HelloWorldApp {
+        public static void sayHello() {
+            System.debug('WELCOME TO APEX PROGRAMMING');
+        }
+    }
+- Click the Debug menu and select Open Execute Anonymous Window.
+- Enter the following code, ensure "Open Log" is checked, and click Execute:
+    HelloWorldApp.sayHello();
+- Select the "Debug Only" checkbox in the execution log to view the output message.
+
+5. Implement a mailing service using Apex programming language of salesforce.com
+- Open the Developer Console from the quick access menu in Salesforce.
+- Click File > New > Apex Class, enter “EmailManager” as the class name, and click OK.
+- Replace the default body with the email service code and click File > Save:
+    public class EmailManager {
+        public void sendMail(String address, String subject, String body) {
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            String[] toAddresses = new String[] {address};
+            mail.setToAddresses(toAddresses);
+            mail.setSubject(subject);
+            mail.setPlainTextBody(body);
+            Messaging.SendEmailResult[] results = Messaging.sendEmail(
+                new Messaging.SingleEmailMessage[] { mail });
+            inspectResults(results);
+        }
+        
+        private static Boolean inspectResults(Messaging.SendEmailResult[] results) {
+            Boolean sendResult = true;
+            for (Messaging.SendEmailResult res : results) {
+                if (res.isSuccess()) {
+                    System.debug('Email sent successfully');
+                } else {
+                    sendResult = false;
+                    System.debug('The following errors occurred: ' + res.getErrors());
+                }
+            }
+            return sendResult;
+        }
+    }
+- Click Debug > Open Execute Anonymous Window and enter the following to test, then click Execute:
+    EmailManager em = new EmailManager();
+    em.sendMail('Your email address', 'Email Subject', 'Email Body');
+
+6. To Simulate a cloud scenario using CloudSim and run a scheduling algorithm that is not present in Cloud Sim.
+- Download CloudSim installable files from the provided source and unzip them.
+- Open Eclipse and create a new Java Project (File -> New).
+- Import the unpacked CloudSim project into the new Java Project.
+- Initialize the CloudSim library: CloudSim.init(num_user, calendar, trace_flag).
+- Create a Datacenter using a DatacenterCharacteristics object.
+- Create a broker using createBroker().
+- Create a virtual machine (VM) with specific properties (ID, MIPS, CPUs, RAM, bandwidth, storage).
+- Submit the VM list to the broker: broker.submitVmList(vmlist).
+- Create a cloudlet with length, file size, output size, and utilization model.
+- Submit the cloudlet list to the broker: broker.submitCloudletList(cloudletList).
+- Start the simulation: CloudSim.startSimulation().
+
+7. To implement thread based image processing application in Microsoft Azure
+- Create an Azure Account and open the Azure Portal.
+- Search for Storage Accounts, click Create, enter a name (e.g., imagestorage123), choose a region, and click Create.
+- Open the Storage Account, go to Containers, click + Container, name it "images" with Private access, and click Create.
+- Open the "images" container, click Upload, select multiple image files, and upload them.
+- Go to Access Keys in the Storage Account and copy the Connection String.
+- Install required libraries on your system using: pip install azure-storage-blob pillow.
+- Write the multithreaded Python code (inserting your connection string) and run it using python app.py:
+    import threading
+    from azure.storage.blob import BlobServiceClient
+    from PIL import Image
+    import io
+
+    connection_string = "YOUR_CONNECTION_STRING"
+    container_name = "images"
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+    def process_image(blob_name):
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+        data = blob_client.download_blob().readall()
+        stream = io.BytesIO(data)
+        img = Image.open(stream)
+        img = img.resize((200, 200)) 
+        output = io.BytesIO()
+        img.save(output, format='JPEG')
+        output.seek(0)
+        new_name = "processed_" + blob_name
+        blob_service_client.get_blob_client(container=container_name, blob=new_name).upload_blob(output, overwrite=True)
+
+    def main():
+        container_client = blob_service_client.get_container_client(container_name)
+        blobs = container_client.list_blobs()
+        threads = []
+        for blob in blobs:
+            t = threading.Thread(target=process_image, args=(blob.name,))
+            threads.append(t)
+            t.start()
+        for t in threads:
+            t.join()
+        print("All images processed successfully")
+
+    if __name__ == "__main__":
+        main()
+- Verify output by checking the Azure Blob Container for files prefixed with processed_.
+
+8. To deploy dynamic web application on EC2 Instance on AWS
+- Type EC2 in the search box in AWS, click on EC2, and select Launch instance.
+- Under Name and tags, give it a name like "web server".
+- Under Application and OS images, select Amazon Linux AWS.
+- Select t3.micro under Instance type.
+- Create a new key pair (e.g., kyp), download the .pem file, and proceed.
+- In network settings, enable allowing SSH, HTTPS, and HTTP traffic from the internet.
+- Launch the instance, go to Instances, select your new instance, and click Connect using EC2 Instance Connect.
+- Execute the following commands in the terminal:
+    sudo su -
+    yum update -y
+    yum install -y httpd
+    mkdir temp
+    cd temp
+    wget https://templatemo.com/download/templatemo_596_electric_xtra
+    mkdir templatemo_596_electric_xtra_unzipped
+    unzip templatemo_596_electric_xtra -d templatemo_596_electric_xtra_unzipped
+    cd templatemo_596_electric_xtra_unzipped
+    cd templatemo_596_electric_xtra
+    mv * /var/www/html/
+    cd /var/www/html/
+    systemctl start httpd
+    systemctl enable httpd
+    systemctl status httpd
+- Copy the public IPv4 address of the instance, paste it into a browser, and view the web page.
+
+9. To use Google App Engine Launcher to launch web applications.
+- Create a sub-folder named ae--01--trivial inside an apps directory on your desktop.
+- Create a file named app.yaml in this folder with the following contents:
+    application: ae-01-trivial
+    version: 1
+    runtime: python
+    api_version: 1
+    handlers:
+    - url: /.*
+      script: index.py
+- Create a file named index.py in the same folder with the following contents:
+    print 'Content-Type: text/plain'
+    print ''
+    print 'Hello there Chuck'
+- Start the GoogleAppEngineLauncher program.
+- Use File --> Add Existing Application and select the ae--01--trivial folder.
+- Select the application in the launcher and press Run.
+- Press Browse or navigate to http://localhost:8080/ in a browser to see the application.
+- Check the Logs button in the launcher to view internal server actions and troubleshoot errors.
+
+10. To deploy static web application using S3 on AWS and secure it with signed URL’s
+- Go to S3 in the AWS console, click create bucket, enter a name, and uncheck "Block all public access".
+- Select "Properties" in the bucket, scroll to the bottom, edit Static website hosting, enable it, and specify index.html for both index and error documents.
+- Go to "Permissions", edit the Bucket Policy, replace BUCKET_NAME with your bucket's name, and save the following JSON:
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:*",
+                "Resource": [
+                    "arn:aws:s3:::BUCKET_NAME/*",
+                    "arn:aws:s3:::BUCKET_NAME"
+                ]
+            }
+        ]
+    }
+- Upload your static website files (e.g., index.html, styles.css) into the bucket.
+- Go to CloudFront, click Create Distribution, and paste your S3 bucket's static URL into the Origin Domain (removing https://).
+- Set Viewer protocol policy to "Redirect HTTP to HTTPS" and click Create Distribution.
+- Access your website using the generated Distribution domain name.
+
+11. Create Video streaming service using S3 and cloudfront and AWS Elemental Media Convert Digital Rights Management System
+- Navigate to S3 in the AWS Console and create a bucket with a globally unique name.
+- Ensure "Block all public access" remains checked, enable Bucket Versioning, and enable Default Encryption with SSE-S3.
+- Upload a test .mp4 video to the new S3 bucket.
+- Open the CloudFront console and click Create distribution.
+- Select your S3 bucket as the Origin domain, select "Origin access control settings (recommended)" for Origin access, and click Create control setting.
+- Set Viewer protocol policy to "Redirect HTTP to HTTPS" and Cache policy to "CachingOptimized".
+- Click Create distribution and copy the policy JSON provided in the banner at the top of the screen.
+- Return to the S3 bucket, go to the Permissions tab, edit the Bucket policy, paste the copied CloudFront policy, and save.
+- Test the stream by opening a browser and appending the uploaded video file's name to the end of the CloudFront Distribution domain URL.
