@@ -28,6 +28,12 @@ for i, prediction in enumerate(predictions):
 
 
 
+
+
+
+
+
+
 2. Implement resularization technique in deep learning models using parameter norm penalties, augmentation, and noise robustness for improved generalization. 
 import tensorflow as tf
 from tensorflow import keras
@@ -39,11 +45,9 @@ x_train = x_train.astype('float32') / 255
 x_train = np.expand_dims(x_train, -1)
 y_train = tf.keras.utils.to_categorical(y_train, 10)
 
-# Noise robustness
 noise = 0.05 * np.random.normal(size=x_train.shape)
 x_train = np.clip(x_train + noise, 0., 1.)
 
-# Augmentation
 datagen = keras.preprocessing.image.ImageDataGenerator(
     rotation_range=10, 
     width_shift_range=0.1,
@@ -71,6 +75,13 @@ history = model.fit(
     epochs=50,
     callbacks=[early_stop]
 )
+
+
+
+
+
+
+
 
 
 3. Implement and compare different optimization algorithms  (SGD, Momentum, Adam) for training a simple neural network on a toy dataset.  
@@ -122,6 +133,13 @@ print(f"Final Loss (Momentum): {losses_momentum[-1]:.6f}")
 print(f"Final Loss (Adam): {losses_adam[-1]:.6f}")
 
 
+
+
+
+
+
+
+
 4. Build a CNN on MNIST dataset
 
 import tensorflow as tf
@@ -161,6 +179,13 @@ plt.ylabel('Accuracy')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
+
+
+
+
+
 
 5. Implement an LSTM-based RNN for text classification
 
@@ -206,12 +231,20 @@ def plot_graphs(history, string):
 plot_graphs(history, "accuracy")
 plot_graphs(history, "loss")
 
+
+
+
+
+
+
+
+
+
 6. Construct a Bidirectional RNN and compare its performance
 
 import tensorflow as tf
 import numpy as np
 
-# Synthetic dataset: predict next number in a sequence
 seq_length = 10
 num_samples = 1000
 X = []
@@ -223,10 +256,9 @@ for _ in range(num_samples):
     X.append(seq[:-1])
     y.append(seq[1:])
 
-X = np.array(X, dtype=np.float32)[..., np.newaxis] # (batch, seq_len-1, 1)
-y = np.array(y, dtype=np.float32)[..., np.newaxis] # (batch, seq_len-1, 1)
+X = np.array(X, dtype=np.float32)[..., np.newaxis] 
+y = np.array(y, dtype=np.float32)[..., np.newaxis] 
 
-# Define simple RNN model
 def build_simple_rnn(input_size=1, hidden_size=32, output_size=1):
     model = tf.keras.Sequential([
         tf.keras.layers.SimpleRNN(hidden_size, return_sequences=True, input_shape=(seq_length-1, input_size)),
@@ -235,7 +267,6 @@ def build_simple_rnn(input_size=1, hidden_size=32, output_size=1):
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss='mse')
     return model
 
-# Define Bidirectional RNN model
 def build_birnn(input_size=1, hidden_size=32, output_size=1):
     model = tf.keras.Sequential([
         tf.keras.layers.Bidirectional(
@@ -247,7 +278,6 @@ def build_birnn(input_size=1, hidden_size=32, output_size=1):
     model.compile(optimizer=tf.keras.optimizers.Adam(0.01), loss='mse')
     return model
 
-# Train models
 def train_model(model, X, y, epochs=50):
     history = model.fit(X, y, epochs=epochs, verbose=0)
     return history.history['loss'][-1]
@@ -266,46 +296,42 @@ print(f"Final Loss (BiRNN): {birnn_loss:.4f}")
 
 
 
+
+
 7. Implement an encoder-decoder architecture with LSTMs
 
 import numpy as np
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, LSTM, Dense
 
-# Sample data: input -> output (reverse sequence)
 num_samples = 1000
 timesteps = 5
 input_dim = 1
 latent_dim = 32
 
-# Create toy data
 X = np.random.rand(num_samples, timesteps, input_dim)
-Y = np.flip(X, axis=1) # reversed sequences
+Y = np.flip(X, axis=1) 
 
-# Encoder
 encoder_inputs = Input(shape=(timesteps, input_dim))
 encoder_outputs, state_h, state_c = LSTM(latent_dim, return_state=True)(encoder_inputs)
 encoder_states = [state_h, state_c]
 
-# Decoder
 decoder_inputs = Input(shape=(timesteps, input_dim))
 decoder_lstm = LSTM(latent_dim, return_sequences=True, return_state=True)
 decoder_outputs, _, _ = decoder_lstm(decoder_inputs, initial_state=encoder_states)
 decoder_dense = Dense(input_dim)
 decoder_outputs = decoder_dense(decoder_outputs)
 
-# Full model
 model = Model([encoder_inputs, decoder_inputs], decoder_outputs)
 model.compile(optimizer='adam', loss='mse')
 
-# Train (teacher forcing - decoder gets previous true sequence)
 model.fit([X, Y], Y, epochs=10, batch_size=32)
 
-# Test
 pred = model.predict([X[:1], Y[:1]])
 print("Input:\n", X[0].squeeze())
 print("Predicted reversed:\n", pred[0].squeeze())
 print("True reversed:\n", Y[0].squeeze())
+
 
 
 
@@ -319,29 +345,25 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load and preprocess MNIST
 (x_train, _), _ = tf.keras.datasets.mnist.load_data()
 x_train = x_train.astype('float32') / 255.0
-x_train = (x_train > 0.5).astype('float32') # binarize
+x_train = (x_train > 0.5).astype('float32') 
 x_train = x_train.reshape(-1, 784)
 batch_size = 64
 train_dataset = tf.data.Dataset.from_tensor_slices(x_train).shuffle(10000).batch(batch_size)
 
-# --- RBM Class ---
 class RBM(tf.keras.Model):
     def __init__(self, n_visible, n_hidden):
         super(RBM, self).__init__()
         self.n_visible = n_visible
         self.n_hidden = n_hidden
         
-        # Parameters
         initializer = tf.initializers.RandomNormal(mean=0.0, stddev=0.01)
         self.W = tf.Variable(initializer([n_visible, n_hidden]), name='weights')
         self.h_bias = tf.Variable(tf.zeros([n_hidden]), name='hidden_bias')
         self.v_bias = tf.Variable(tf.zeros([n_visible]), name='visible_bias')
 
     def sample_prob(self, probs):
-        """Sample binary values from probabilities."""
         return tf.nn.relu(tf.sign(probs - tf.random.uniform(tf.shape(probs))))
 
     def sample_h(self, v):
@@ -353,27 +375,21 @@ class RBM(tf.keras.Model):
         return prob_v, self.sample_prob(prob_v)
 
     def contrastive_divergence(self, v, lr=0.01):
-        # Positive phase
         prob_h, h0 = self.sample_h(v)
-        # Negative phase (reconstruction)
         prob_v, v1 = self.sample_v(h0)
         prob_h1, _ = self.sample_h(v1)
         
-        # Compute gradients
         positive_grad = tf.matmul(tf.transpose(v), prob_h)
         negative_grad = tf.matmul(tf.transpose(v1), prob_h1)
         
-        # Update weights and biases
         batch_size = tf.cast(tf.shape(v)[0], tf.float32)
         self.W.assign_add(lr * (positive_grad - negative_grad) / batch_size)
         self.v_bias.assign_add(lr * tf.reduce_mean(v - v1, axis=0))
         self.h_bias.assign_add(lr * tf.reduce_mean(prob_h - prob_h1, axis=0))
         
-        # Compute reconstruction loss (MSE)
         loss = tf.reduce_mean(tf.square(v - v1))
         return loss
 
-# Initialize and train RBM
 n_visible = 784
 n_hidden = 128
 rbm = RBM(n_visible, n_hidden)
@@ -390,7 +406,6 @@ for epoch in range(n_epochs):
     losses.append(avg_loss)
     print(f"Epoch {epoch+1}/{n_epochs}, Reconstruction Loss: {avg_loss:.4f}")
 
-# --- Plot training loss ---
 plt.figure(figsize=(7, 5))
 plt.plot(range(1, n_epochs+1), losses, marker='o')
 plt.title("RBM Reconstruction Loss over Epochs")
@@ -398,6 +413,9 @@ plt.xlabel("Epoch")
 plt.ylabel("MSE Loss")
 plt.grid(True)
 plt.show()
+
+
+
 
 
 
@@ -467,6 +485,11 @@ plt.show()
 
 
 
+
+
+
+
+
 10. Implement a simple Generative Adversarial Network (GAN)
 
 import tensorflow as tf
@@ -474,7 +497,6 @@ from tensorflow.keras import layers
 import numpy as np
 import matplotlib.pyplot as plt
 
-# load and normalize MNIST
 (x_train, _), _ = tf.keras.datasets.mnist.load_data()
 x_train = (x_train.astype("float32") - 127.5) / 127.5
 x_train = np.expand_dims(x_train, axis=-1)
@@ -483,7 +505,6 @@ batch_size = 128
 buffer_size = 60000
 train_dataset = tf.data.Dataset.from_tensor_slices(x_train).shuffle(buffer_size).batch(batch_size)
 
-# Generator
 def build_generator():
     model = tf.keras.Sequential([
         layers.Dense(7 * 7 * 128, input_dim=100),
@@ -495,7 +516,6 @@ def build_generator():
     ])
     return model
 
-# Discriminator
 def build_discriminator():
     model = tf.keras.Sequential([
         layers.Conv2D(64, (5, 5), strides=2, padding="same", input_shape=[28, 28, 1]),
@@ -509,13 +529,11 @@ def build_discriminator():
     ])
     return model
 
-# Models
 generator = build_generator()
 discriminator = build_discriminator()
 
 discriminator.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
 
-# Gan combined model
 discriminator.trainable = False
 gan_input = tf.keras.Input(shape=(100,))
 gan_output = discriminator(generator(gan_input))
@@ -523,10 +541,8 @@ gan = tf.keras.Model(gan_input, gan_output)
 
 gan.compile(loss="binary_crossentropy", optimizer="adam")
 
-# --Training--
-epochs = 5000 # small but enough to get clear digits
+epochs = 5000 
 for step in range(epochs):
-    # Train Discriminator
     noise = np.random.normal(0, 1, (batch_size, 100))
     fake = generator.predict(noise, verbose=0)
     real = x_train[np.random.randint(0, x_train.shape[0], batch_size)]
@@ -535,5 +551,21 @@ for step in range(epochs):
     
     d_loss, _ = discriminator.train_on_batch(X, y)
     
-    # Train Generator
-    # (NOT COMPLETED YET)
+    noise = np.random.normal(0, 1, (batch_size, 100))
+    y_gen = np.ones((batch_size, 1))
+    
+    g_loss = gan.train_on_batch(noise, y_gen)
+    
+    if step % 1000 == 0:
+        print(f"Step: {step}, D Loss: {d_loss:.4f}, G Loss: {g_loss:.4f}")
+
+noise = np.random.normal(0, 1, (10, 100))
+gen_imgs = generator.predict(noise)
+gen_imgs = 0.5 * gen_imgs + 0.5
+
+plt.figure(figsize=(10, 1))
+for i in range(10):
+    plt.subplot(1, 10, i + 1)
+    plt.imshow(gen_imgs[i, :, :, 0], cmap='gray')
+    plt.axis('off')
+plt.show()
